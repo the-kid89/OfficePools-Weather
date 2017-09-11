@@ -1,0 +1,42 @@
+.city {
+    font-family: Roboto;
+    font-weight: 300;
+    font-size: 1.8em;
+    color:#5b5b5b;
+}
+
+.temp {
+    font-family:Roboto;
+    font-weight: 300;
+    font-size: 8.5em;
+    margin-top:-.75em;
+    color:#5b5b5b;
+}
+
+.day {
+    font-family:Roboto;
+    display:block;
+    width: 21.5%;
+    height:9em;
+    float:left;
+    margin: 0 .375em .5em;
+    text-align:center;
+    color: #5b5b5b;
+    border-right:.1em solid #d9d9d9;
+    line-height: 2;
+}
+
+.highTemp {
+    font-weight:bold;
+}
+.lowTemp {
+    color: #8c8c8c;
+}
+
+#weather_icon img {
+    padding-top: 36px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="weatherApp">
+
+<head>
+    <title>OfficePools - Weather</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
+    <link href='css/style.css' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+<div class="container" ng-controller="WeatherController">
+    <div class="row">
+        <div class="col s12">
+            <h1>OfficePools Weather</h1>
+        </div>
+    </div>
+    <div class="row">
+        <form class="col s12" ng-submit="submit()">
+            <div class="row">
+                <div class="input-field col s4">
+                    <input placeholder="City" id="city_name" type="text" class="validate" ng-model="city" required>
+                    <label for="city_name">City</label>
+                </div>
+                <div class="input-field col s4">
+                    <input placeholder="Country Code" id="country_code" type="text" class="validate"
+                           ng-model="country_code" required>
+                    <label for="country_code">Country Code</label>
+                </div>
+                <div class="input-field col s4">
+                    <input type="submit" value="Submit" class="waves-effect waves-light btn">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row" ng-show="show">
+        <div class="col s12">
+            <div class="row">
+                <h2 id="city" class="card-title">{{data.city.name}}, {{data.city.country}}</h2>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col s3 m1">
+                    <div class="row" id="weather_icon">
+                        <img src="http://openweathermap.org/img/w/{{weather.icon}}.png">
+                    </div>
+                    <div class="row">
+
+                    </div>
+                </div>
+                <div class="col s9 m7">
+                    <span class="temp">{{weather.temperature}}&#176;C</span>
+                </div>
+                <div class="col s12 m4">
+                    <div class="col s12 m12">
+                        <ul>
+                            <li>Precipitation: {{weather.precipitation}} %</li>
+                            <li>Humidity: {{weather.humidity}} %</li>
+                            <li>Wind: {{weather.wind}} km/h</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div ng-repeat="record in forecast">
+                <div class="day">{{record.date}}
+                    <br> <img src="http://openweathermap.org/img/w/{{record.icon}}.png">
+                    <br> <span class="highTemp">{{record.temp_max}}&#176;C</span> <br> <span class="lowTemp">{{record.temp_min}}&#176;C</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+
+<script type="text/javascript">
+    var weatherApp = angular.module('weatherApp', []);
+
+
+    weatherApp.controller('WeatherController', function WeatherController($scope, $http) {
+        $scope.show = false;
+        $scope.data = {};
+        $scope.weather = {icon: '01n'};
+        $scope.forecast = {};
+
+        $scope.submit = function () {
+            var buildWeatherData = function (data) {
+                var chartData = [];
+                for (var i = 0; i < data.length; i++) {
+                    var date = data[i].dt_txt.substring(8, 10);
+
+                    if (i === 0) {
+                        lastDate = date;
+                    } else {
+                        var lastDate = data[i - 1].dt_txt.substring(8, 10);
+                    }
+
+                    if (lastDate !== date) {
+                        console.log(i);
+                        chartData.push({
+                            date: date,
+                            temp_max: data[i].main.temp_max,
+                            temp_min: data[i].main.temp_min,
+                            icon: data[i].weather[0].icon
+                        });
+                    }
+                }
+                return chartData;
+            };
+
+            var req = {
+                method: 'GET',
+                url: 'http://127.0.0.1:8000/api/weather/',
+                params: {city: $scope.city, country_code: $scope.country_code}
+            };
+
+            $http(req).then(
+                function successCallback(response) {
+                    $scope.data = response.data;
+                    $scope.weather = {
+                        icon: response.data.list[0].weather[0].icon,
+                        precipitation: response.data.list[0].rain['3h'],
+                        temperature: response.data.list[0].main.temp,
+                        humidity: response.data.list[0].main.humidity,
+                        wind: response.data.list[0].wind.speed
+                    };
+
+                    $scope.forecast = buildWeatherData(response.data.list);
+                }
+            );
+            $scope.show = true;
+        }
+    });
+</script>
+</body>
+
+</html>
